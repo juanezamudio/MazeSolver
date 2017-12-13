@@ -12,13 +12,17 @@ import sp3.Maze.*;
 
 public class MazeSolver {
 	
+	// COUNT CONSTANTS
 	public static double COUNT_BFS = 0.0;
 	public static double COUNT_DFS = 0.0;
 	public static double COUNT_ASTAR = 0.0;
 	public static double COUNT_BIBFS = 0.0;
 	
+	// Variables for Bidirectional BFS Maps 
 	public HashMap<Position, Position> mapStart = new HashMap<Position, Position>();
 	public HashMap<Position, Position> mapGoal = new HashMap<Position, Position>();
+	
+	// MIDPOSITION CONSTANT for Bidirectional BFS
 	public static Position CURR_GOAL;
 	
 	/**
@@ -182,11 +186,25 @@ public class MazeSolver {
 		path.add(start);
 	}
 	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private Integer hfunc(Position a, Position b){
 		int h = (int)Math.sqrt(Math.pow((a.x-b.x), 2) + Math.pow((a.y-b.y), 2));
 		return h;
 	}
 	
+	/**
+	 * 
+	 * @param maze
+	 * @param start
+	 * @param goal
+	 * @param path
+	 * @return
+	 */
 	public String aStar (Maze maze, Position start, Position goal, List<Position> path) {
 		Queue<Entry> pQueue = new PriorityQueue<Entry>();
 		Map<Position, Integer> dist = new HashMap<Position, Integer>();
@@ -244,6 +262,14 @@ public class MazeSolver {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param maze
+	 * @param start
+	 * @param goal
+	 * @param path
+	 * @return
+	 */
 	public String start_bibfs (Maze maze, Position start, Position goal, List<Position> path) {
 		Queue<Position> queueStart = new LinkedList<Position>();
 		Queue<Position> queueGoal = new LinkedList<Position>();
@@ -276,6 +302,15 @@ public class MazeSolver {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param maze
+	 * @param queueStart
+	 * @param queueGoal
+	 * @param visited
+	 * @param map
+	 * @return
+	 */
 	public boolean bibfs(Maze maze, 
 						Queue<Position> queueStart, 
 						Queue<Position> queueGoal,
