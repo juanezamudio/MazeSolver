@@ -67,14 +67,14 @@ public class MazeSolver {
 				}
 				
 				path.add(0, start);
+				break;
 			}
 			
 			case 2: {
-				start = goal;
+				Position finalGoal = goal;
 				Position pos = currGoal;
 				
-				while (!pos.equals(start)) {
-					System.out.println(path);
+				while (!pos.equals(finalGoal)) {
 					path.add(pos);
 					pos = parent.get(pos);
 					
@@ -83,7 +83,8 @@ public class MazeSolver {
 					}
 				}
 				
-				path.add(start);
+				path.add(finalGoal);
+				break;
 			}
 			
 		}
@@ -275,12 +276,21 @@ public class MazeSolver {
 			if (this.bibfs(maze, queueStart, queueGoal, pathStart, mapStart)) {
 				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
 				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
+				
+				System.out.println("HERE1");
+//				System.out.println(listStart);
+//				System.out.println(listGoal);
+				listStart.addAll(listGoal);
+				System.out.println(listStart);
 				result = "Target Found";
-			}
-			
-			if (this.bibfs(maze, queueGoal, queueStart, pathGoal, mapGoal)) {
+			} else if (this.bibfs(maze, queueGoal, queueStart, pathGoal, mapGoal)) {
 				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
 				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
+				System.out.println("HERE2");
+//				System.out.println(listStart);
+//				System.out.println(listGoal);
+				listStart.addAll(listGoal);
+				System.out.println(listStart);
 				result = "Target Found";
 			}
 		}
