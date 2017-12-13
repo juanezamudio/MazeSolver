@@ -14,7 +14,6 @@ public class MazeSolver {
 	
 	public static double COUNT_BFS = 0.0;
 	public static double COUNT_DFS = 0.0;
-	public static double AVERAGE_DFS = 0.0;
 	public static double COUNT_ASTAR = 0.0;
 	public static double COUNT_BIBFS = 0.0;
 	
@@ -105,7 +104,6 @@ public class MazeSolver {
 		HashMap<Position, Position> parent = new HashMap<Position, Position>();
 		Queue<Position> queue = new LinkedList<Position>();
 		String result = "Not Found";
-		double average = 0;
 		
 		visited.add(start);
 		parent.put(start, null);
@@ -113,7 +111,6 @@ public class MazeSolver {
 		
 		while (!queue.isEmpty()) {
 			Position v = queue.remove();
-			average += 1;
 			
 			for (Position u : maze.getNeighboringSpaces(v)) {
 				COUNT_BFS += 1;
@@ -130,7 +127,6 @@ public class MazeSolver {
 				}
 			}
 		}
-		COUNT_BFS = COUNT_BFS/average;
 		
 		return result;
 	}
@@ -155,7 +151,6 @@ public class MazeSolver {
 		
 		stack.add(start);
 		visited.add(start);
-		AVERAGE_DFS += 1;
 		
 		if (start.equals(goal)) {
 			result = "Target Found";	
@@ -185,7 +180,6 @@ public class MazeSolver {
 		Set<Position> visited = new HashSet<Position>();
 		this.dfs(maze, start, goal, path, visited);
 		path.add(start);
-		COUNT_DFS = COUNT_DFS/AVERAGE_DFS;
 	}
 	
 	private Integer hfunc(Position a, Position b){
@@ -193,12 +187,11 @@ public class MazeSolver {
 		return h;
 	}
 	
-	public String aStar (Maze m, Position start, Position goal, List<Position> path) {
+	public String aStar (Maze maze, Position start, Position goal, List<Position> path) {
 		Queue<Entry> pQueue = new PriorityQueue<Entry>();
 		Map<Position, Integer> dist = new HashMap<Position, Integer>();
 		HashMap<Position, Position> parent = new HashMap<Position, Position>();
 		String result = "Not Found";
-		double average = 0.0;
 		
 		Entry startPos = new Entry(start, hfunc(start, new Position(0,0)));
 		
@@ -209,14 +202,13 @@ public class MazeSolver {
 		while (!pQueue.isEmpty()) {
 			Entry n = pQueue.poll();
 			Position nPos = n.getKey();
-			average += 1;
 			
 			if (nPos.equals(goal)) {
 				this.correctPath(start, goal, parent, path);
 				result = "Target Found";
 			}
 			
-			for (Position u : m.getNeighboringSpaces(nPos)) {
+			for (Position u : maze.getNeighboringSpaces(nPos)) {
 				COUNT_ASTAR += 1;
 				
 				if (dist.get(u) == null) {
@@ -249,7 +241,6 @@ public class MazeSolver {
 			
 		}
 		
-		COUNT_ASTAR = COUNT_ASTAR/average;
 		return result;
 	}
 	
@@ -260,7 +251,6 @@ public class MazeSolver {
 		ArrayList<Position> pathGoal = new ArrayList<Position>();
 		
 		String result = "Not Found";
-		double average = 0.0;
 		
 		pathStart.add(start);
 		pathGoal.add(goal);
@@ -271,7 +261,6 @@ public class MazeSolver {
 		mapGoal.put(goal, null);
 		
 		while (!queueStart.isEmpty() && !queueGoal.isEmpty()) {
-			average += 1;
 			
 			if (this.bibfs(maze, queueStart, queueGoal, pathStart, mapStart)) {
 				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
@@ -284,7 +273,6 @@ public class MazeSolver {
 			}
 		}
 		
-		COUNT_BIBFS = COUNT_BFS/average;
 		return result;
 	}
 	
@@ -313,9 +301,49 @@ public class MazeSolver {
 		return false;
 	}
 	
-	public Position matched (Position pos) {
+	private Position matched (Position pos) {
 		CURR_GOAL = pos;
 		return CURR_GOAL;
+	}
+	
+	public static void countNeighborCalls(MazeSolver object,
+								  int dimension,
+								  Position startPos,
+								  Position goalPos,
+								  List<Position> path) {
+		
+		double average = 10.0;
+		
+		Maze maze = new Maze(dimension);
+		
+		for (double i = 0.0; i <= average; i++) {
+			
+			object.bfs(maze, startPos, goalPos, path);
+			path.clear();
+			
+			object.start_dfs(maze, startPos, goalPos, path);
+			path.clear();
+			
+			object.aStar(maze, startPos, goalPos, path);
+			path.clear();
+			
+			object.start_bibfs(maze, startPos, goalPos, path);
+			path.clear();
+		}
+		
+		COUNT_BFS /= average;
+		COUNT_DFS /= average;
+		COUNT_ASTAR /= average;
+		COUNT_BIBFS /= average;
+		
+		System.out.println("For 10 algorithm calls with a maze dimension of: " + dimension + " by " + dimension);
+		System.out.println("BFS makes: " + Double.toString(COUNT_BFS) + " getNeighboringSpace calls on average");
+		System.out.println("DFS makes: " + Double.toString(COUNT_DFS) + " getNeighboringSpace calls on average");
+		System.out.println("A* makes: " + Double.toString(COUNT_ASTAR) + " getNeighboringSpace calls on average");
+		System.out.println("BiBFS makes: " + Double.toString(COUNT_BIBFS) + " getNeighboringSpace calls on average");
+		
+		System.out.println();
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {	
@@ -326,6 +354,7 @@ public class MazeSolver {
 		Position goalPos = new Position(dim-1,dim-1);
 		
 		List<Position> path = new ArrayList<Position>();
+		List<Position> countPath = new ArrayList<Position>();
 //		path.add(startPos);
 		
 		// TODO: Implement a search algorithm to find a path from start to goal
@@ -341,13 +370,15 @@ public class MazeSolver {
 //		myMaze.aStar(m, startPos, goalPos, path);
 		
 		//--------------------Bidirectional BFS Call---------------------------
-		myMaze.start_bibfs(m, startPos, goalPos, path);
+//		myMaze.start_bibfs(m, startPos, goalPos, path);
 		
 		// TODO: Count m.getNeighboringSpaces(p) calls
-//		System.out.println("BFS makes: " + Double.toString(COUNT_BFS) + " calls on average");
-//		System.out.println("DFS makes: " + Double.toString(COUNT_DFS) + " calls on average");
-//		System.out.println("A* makes: " + Double.toString(COUNT_ASTAR) + " calls on average");
-		System.out.println("BiBFS makes: " + Double.toString(COUNT_BIBFS) + " calls on average");
+		countNeighborCalls(myMaze, 25, startPos, goalPos, countPath);
+		countNeighborCalls(myMaze, 50, startPos, goalPos, countPath);
+		countNeighborCalls(myMaze, 100, startPos, goalPos, countPath);
+		countNeighborCalls(myMaze, 200, startPos, goalPos, countPath);
+		countNeighborCalls(myMaze, 400, startPos, goalPos, countPath);
+		
 		
 		JFrame f = new JFrame();
 		f.setTitle("SP3: Maze");
