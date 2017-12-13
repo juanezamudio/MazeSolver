@@ -360,6 +360,9 @@ public class MazeSolver {
 		// TODO: Implement a search algorithm to find a path from start to goal
 		MazeSolver myMaze = new MazeSolver();
 		
+		//--------------UNCOMMENT BELOW TO TEST ALGORITHMS---------------------
+		
+		
 		//--------------------BFS Algorithm Call-------------------------------
 //		myMaze.bfs(m, startPos, goalPos, path);
 		
@@ -373,6 +376,7 @@ public class MazeSolver {
 //		myMaze.start_bibfs(m, startPos, goalPos, path);
 		
 		// TODO: Count m.getNeighboringSpaces(p) calls
+		// Needs about 4GB of Memory and will take about an hour and 40 minutes
 		countNeighborCalls(myMaze, 25, startPos, goalPos, countPath);
 		countNeighborCalls(myMaze, 50, startPos, goalPos, countPath);
 		countNeighborCalls(myMaze, 100, startPos, goalPos, countPath);
