@@ -30,7 +30,7 @@ public class MazeSolver {
 	 * @param path - The list where the solution positions are placed
 	 * @return - The list of solution positions (i.e. solution path)
 	 */
-	public List<Position> correctPath(Position start, 
+	private List<Position> correctPath(Position start, 
 									 Position goal, 
 									 HashMap<Position, Position> parent, 
 									 List<Position> path) {
@@ -48,7 +48,7 @@ public class MazeSolver {
 		return path;
 	}
 	
-	public List<Position> correctPathBi(Position start, 
+	private List<Position> correctPathBi(Position start, 
 									   Position currGoal, 
 									   HashMap<Position, Position> parent,
 									   List<Position> path,
@@ -188,7 +188,7 @@ public class MazeSolver {
 		COUNT_DFS = COUNT_DFS/AVERAGE_DFS;
 	}
 	
-	public Integer hfunc(Position a, Position b){
+	private Integer hfunc(Position a, Position b){
 		int h = (int)Math.sqrt(Math.pow((a.x-b.x), 2) + Math.pow((a.y-b.y), 2));
 		return h;
 	}
@@ -276,21 +276,10 @@ public class MazeSolver {
 			if (this.bibfs(maze, queueStart, queueGoal, pathStart, mapStart)) {
 				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
 				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
-				
-				System.out.println("HERE1");
-//				System.out.println(listStart);
-//				System.out.println(listGoal);
-				listStart.addAll(listGoal);
-				System.out.println(listStart);
 				result = "Target Found";
 			} else if (this.bibfs(maze, queueGoal, queueStart, pathGoal, mapGoal)) {
 				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
 				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
-				System.out.println("HERE2");
-//				System.out.println(listStart);
-//				System.out.println(listGoal);
-				listStart.addAll(listGoal);
-				System.out.println(listStart);
 				result = "Target Found";
 			}
 		}
