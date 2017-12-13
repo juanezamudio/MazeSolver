@@ -18,9 +18,9 @@ public class MazeSolver {
 	public static double COUNT_ASTAR = 0.0;
 	public static double COUNT_BIBFS = 0.0;
 	
-	public Map<Position, Position> mapStart = new HashMap<Position, Position>();
-	public Map<Position, Position> mapGoal = new HashMap<Position, Position>();
-	public Position currGoal;
+	public HashMap<Position, Position> mapStart = new HashMap<Position, Position>();
+	public HashMap<Position, Position> mapGoal = new HashMap<Position, Position>();
+	public static Position CURR_GOAL;
 	
 	/**
 	 * Method that places the correct positions in a list (i.e. finds solution path)
@@ -48,32 +48,47 @@ public class MazeSolver {
 		return path;
 	}
 	
-	public static List<Position> correctPathBi (Position start, 
-											   Position goal,
-											   HashMap<Position, Position> parent, 
-											   List<Position> path, 
-											   int bool, 
-											   Position goalPos) {
-	        // construct output list
-			if(bool == 2){
-				start = goalPos;
-				Position currNode = goal;
-		        while(!currNode.equals(start)){
-		            path.add(currNode);
-		            currNode = parentMap.get(currNode);
-		        }
-		        path.add(start);
-			}else if(bool ==1){
+	public List<Position> correctPathBi(Position start, 
+									   Position currGoal, 
+									   HashMap<Position, Position> parent,
+									   List<Position> path,
+									   int val,
+									   Position goal) {
+		
+		switch (val) {
 			
-	        Position currNode = goal;
-	        while(!currNode.equals(start)){
-	            path.add(0, currNode);
-	            currNode = parentMap.get(currNode);
-	        }
-	        path.add(0 , start);
-	        
+			case 1: {
+				Position pos = currGoal;
+				
+				while (!pos.equals(start)) {
+					//System.out.print(path);
+					path.add(0, pos);
+					pos = parent.get(pos);
+				}
+				
+				path.add(0, start);
 			}
-			return path;
+			
+			case 2: {
+				start = goal;
+				Position pos = currGoal;
+				
+				while (!pos.equals(start)) {
+					System.out.println(path);
+					path.add(pos);
+					pos = parent.get(pos);
+					
+					if (pos == null) {
+						break;
+					}
+				}
+				
+				path.add(start);
+			}
+			
+		}
+		
+		return path;
 	}
 	
 	/**
@@ -237,14 +252,14 @@ public class MazeSolver {
 		return result;
 	}
 	
-	public String bibfs (Maze maze, Position start, Position goal, List<Position> path) {
+	public String start_bibfs (Maze maze, Position start, Position goal, List<Position> path) {
 		Queue<Position> queueStart = new LinkedList<Position>();
 		Queue<Position> queueGoal = new LinkedList<Position>();
-		List<Position> pathStart = new ArrayList<Position>();
-		List<Position> pathGoal = new ArrayList<Position>();
+		ArrayList<Position> pathStart = new ArrayList<Position>();
+		ArrayList<Position> pathGoal = new ArrayList<Position>();
 		
-		List<Position> listStart;
-		List<Position> listGoal;
+		String result = "Not Found";
+		double average = 0.0;
 		
 		pathStart.add(start);
 		pathGoal.add(goal);
@@ -255,30 +270,39 @@ public class MazeSolver {
 		mapGoal.put(goal, null);
 		
 		while (!queueStart.isEmpty() && !queueGoal.isEmpty()) {
+			average += 1;
 			
-			if (this.start_bibfs(maze, start, goal, path, queueStart, queueGoal, pathStart, mapStart)) {
-				listStart = 
+			if (this.bibfs(maze, queueStart, queueGoal, pathStart, mapStart)) {
+				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
+				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
+				result = "Target Found";
+			}
+			
+			if (this.bibfs(maze, queueGoal, queueStart, pathGoal, mapGoal)) {
+				List<Position> listStart = this.correctPathBi(start, CURR_GOAL, mapStart, path, 1, goal);
+				List<Position> listGoal = this.correctPathBi(start, CURR_GOAL, mapGoal, path, 2, goal);
+				result = "Target Found";
 			}
 		}
 		
+		COUNT_BIBFS = COUNT_BFS/average;
+		return result;
 	}
 	
-	public boolean start_bibfs(Maze maze,
-							  Position start, 
-							  Position goal,
-							  List<Position> path,
-							  Queue<Position> queueStart, 
-							  Queue<Position> queueGoal, 
-							  List<Position> visited,
-							  Map<Position, Position> map){
+	public boolean bibfs(Maze maze, 
+						Queue<Position> queueStart, 
+						Queue<Position> queueGoal,
+						ArrayList<Position> visited, 
+						HashMap<Position, Position> map){
 		
 		Position n = queueStart.remove();
 		
-		for(Position u: maze.getNeighboringSpaces(n)){
+		for (Position u: maze.getNeighboringSpaces(n)) {
+			COUNT_BIBFS += 1;
 			
 			if(queueGoal.contains(u)){
 				map.put(u, n);
-				currGoal = u;
+				this.matched(u);
 				return true;
 			} else if (!visited.contains(u)) {
 				map.put(u, n);
@@ -288,6 +312,11 @@ public class MazeSolver {
 		}
 
 		return false;
+	}
+	
+	public Position matched (Position pos) {
+		CURR_GOAL = pos;
+		return CURR_GOAL;
 	}
 	
 	public static void main(String[] args) {	
@@ -312,12 +341,14 @@ public class MazeSolver {
 		//--------------------A* Algorithm Call--------------------------------
 //		myMaze.aStar(m, startPos, goalPos, path);
 		
+		//--------------------Bidirectional BFS Call---------------------------
+		myMaze.start_bibfs(m, startPos, goalPos, path);
 		
 		// TODO: Count m.getNeighboringSpaces(p) calls
 //		System.out.println("BFS makes: " + Double.toString(COUNT_BFS) + " calls on average");
 //		System.out.println("DFS makes: " + Double.toString(COUNT_DFS) + " calls on average");
 //		System.out.println("A* makes: " + Double.toString(COUNT_ASTAR) + " calls on average");
-		
+		System.out.println("BiBFS makes: " + Double.toString(COUNT_BIBFS) + " calls on average");
 		
 		JFrame f = new JFrame();
 		f.setTitle("SP3: Maze");
