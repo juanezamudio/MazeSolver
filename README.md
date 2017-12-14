@@ -11,7 +11,12 @@
 
 <p> I thought the easiest algorithm to implement was BFS because, for me, it was the most intuitive. I tend to have a hard time wrapping my head around recursion so I sometimes struggle debugging recursive algorithms such as DFS when I encounter a bug. A* was the most difficult to implement because it required proper mathematical calculations of the heuristic function and the total sum function and it also required a lot of variable reassignments that were hard to keep track of. It definitely required a lot of writing out what was going on before implementing it in code. In end, I enjoyed implementing all of these search algorithms and learning about their performance in relation to one another.</p>
 
-### Results
+## Results
 
 ![Second Results](images/results_2.0.png)
 
+### Copyright Notice
+
+This project is part of a Graph Algorithms course taught at Pomona College by Visiting Professor, [William Devanny]. My only contribution to this project is the graph algorithm implementations in the MazeSolver class and the Entry class I created. Any other work in this project is subject to copyright laws under the MIT License.
+
+[William Devanny]: http://www.ics.uci.edu/~wdevanny/
